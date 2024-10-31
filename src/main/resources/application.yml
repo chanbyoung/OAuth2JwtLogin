@@ -16,3 +16,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+
+#p6spy
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
