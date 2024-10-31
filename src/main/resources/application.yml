@@ -1,0 +1,24 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: utf-8
+    session:
+      timeout: 60
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/loginService?allowPublicKe
+    username: root
+    password: 7893
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+#p6spy
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
