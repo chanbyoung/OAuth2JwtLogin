@@ -50,7 +50,6 @@ public class MemberSignUpReqDto {
                     ErrorCode.MEMBER_WRONG_PASSWORD_CONFIRM);
         }
     }
-    @Builder
     public Member toEntity(PasswordEncoder passwordEncoder) {
         return Member.builder()
                 .account(this.account)

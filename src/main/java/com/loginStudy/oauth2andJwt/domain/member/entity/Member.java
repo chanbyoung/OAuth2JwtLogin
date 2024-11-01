@@ -39,8 +39,10 @@ public class Member extends BaseEntity {
     @Enumerated(STRING)
     @Column(name = "role", nullable = false)
     private Role role;
+
     @Builder
-    public Member(String account, String password, Role role) {
+    public Member(Long id, String account, String password, Role role) {
+        this.id = id;
         this.account = account;
         this.password = password;
         this.role = role;
