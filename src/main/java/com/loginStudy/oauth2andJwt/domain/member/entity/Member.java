@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Enumerated;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,4 +39,10 @@ public class Member extends BaseEntity {
     @Enumerated(STRING)
     @Column(name = "role", nullable = false)
     private Role role;
+    @Builder
+    public Member(String account, String password, Role role) {
+        this.account = account;
+        this.password = password;
+        this.role = role;
+    }
 }
