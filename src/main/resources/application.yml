@@ -8,9 +8,12 @@ server:
       timeout: 60
 
 spring:
+  profiles:
+    active: local
+    include: security
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/loginService?allowPublicKe
+    url: jdbc:mysql://localhost:3306/loginService??useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: 7893
   jpa:

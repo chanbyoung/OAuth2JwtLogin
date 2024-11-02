@@ -35,8 +35,15 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	//p6spy 설치
+	// p6spy 설치
 	implementation "com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0"
+
+	// OAuth2 설치
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// JWT 설치
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 
 }
 
