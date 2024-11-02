@@ -13,7 +13,7 @@ spring:
     include: security
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/loginService??useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3306/loginService?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password: 7893
   jpa:
