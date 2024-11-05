@@ -22,7 +22,7 @@ public class RedisTokenStore {
     /**
      * Refresh 토큰과 사용자 정보를 Redis에 저장
      */
-    public boolean storeRefreshToken(RefreshTokenInfoDto tokenData) {
+    public void storeRefreshToken(RefreshTokenInfoDto tokenData) {
         try {
             HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
 
@@ -37,7 +37,6 @@ public class RedisTokenStore {
             if (!isExpireSet) {
                 log.warn("TTL 설정에 실패했습니다. userAccount: {}", tokenData.getUserAccount());
             }
-            return true;  // 성공적으로 저장된 경우 true 반환
         } catch (RedisConnectionFailureException e) {
             log.error("Redis 연결 실패", e);
         } catch (RedisSystemException e) {
@@ -45,7 +44,6 @@ public class RedisTokenStore {
         } catch (Exception e) {
             log.error("Redis에 데이터를 저장 중 예기치 못한 오류 발생", e);
         }
-        return false;  // 예외 발생 시 false 반환
     }
     /**
      * Refresh 토큰이 유효한지 확인
@@ -69,7 +67,6 @@ public class RedisTokenStore {
         HashMap<String, Object> tokenDataMap = new HashMap<>();
         tokenDataMap.put("refreshToken", tokenData.getRefreshToken());
         tokenDataMap.put("authorities", tokenData.getAuthorities());
-        tokenDataMap.put("nickName", tokenData.getNickName());
         return tokenDataMap;
     }
 }
