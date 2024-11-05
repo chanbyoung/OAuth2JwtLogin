@@ -69,4 +69,20 @@ public class RedisTokenStore {
         tokenDataMap.put("authorities", tokenData.getAuthorities());
         return tokenDataMap;
     }
+
+    /**
+     * Redis에서 사용자 권한 정보 가져오기
+     */
+    public String getAuthorities(String userAccount) {
+        try {
+            // Redis에서 userAccount에 해당하는 "authorities" 필드를 가져옴
+            return (String) redisTemplate.opsForHash().get(userAccount, "authorities");
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis 연결 실패", e);
+            return null;
+        } catch (Exception e) {
+            log.error("사용자 권한 정보를 가져오는 중 예기치 못한 오류 발생", e);
+            return null;
+        }
+    }
 }

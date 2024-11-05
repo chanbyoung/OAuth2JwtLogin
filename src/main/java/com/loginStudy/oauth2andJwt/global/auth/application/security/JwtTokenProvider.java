@@ -2,6 +2,8 @@ package com.loginStudy.oauth2andJwt.global.auth.application.security;
 
 import com.loginStudy.oauth2andJwt.global.dto.RefreshTokenInfoDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.AuthResponseDto;
+import com.loginStudy.oauth2andJwt.global.error.BusinessException;
+import com.loginStudy.oauth2andJwt.global.error.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -70,6 +72,33 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+    /**
+     * Refresh 토큰을 이용한 Access 토큰 갱신
+     */
+    public AuthResponseDto refreshAccessToken(String refreshToken) {
+        // 1. 토큰 유효성 검사
+        if (!validateToken(refreshToken)) {
+            throw new BusinessException(refreshToken, "refreshToken", ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 2. 토큰에서 사용자 ID 추출
+        String userId = getUserIdFromToken(refreshToken);
+
+        // 3. Redis에서 Refresh 토큰 유효성 검사
+        if (!redisTokenStore.isValidRefreshToken(userId, refreshToken)) {
+            throw new BusinessException(refreshToken, "refreshToken", ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 4. Redis에서 사용자 권한 정보 추출
+        String authorities = redisTokenStore.getAuthorities(userId);
+
+        // 5. 새로운 Access 토큰 생성
+        String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION);
+
+        // 6. 새로운 AuthResponseDto 반환 (기존 Refresh 토큰 유지)
+        return new AuthResponseDto(newAccessToken, refreshToken);
+    }
+
 
     // 토큰에서 사용자 ID 추출
     public String getUserIdFromToken(String token) {
