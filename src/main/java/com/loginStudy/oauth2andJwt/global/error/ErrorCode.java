@@ -11,7 +11,9 @@ public enum ErrorCode {
     MEMBER_ACCOUNT_DUPLICATE("중복된 아이디 입니다.", HttpStatus.BAD_REQUEST),
     MEMBER_ACCOUNT_NOT_FOUND("가입되지 않은 아이디 입니다.", HttpStatus.NOT_FOUND),
 
-    INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다.", HttpStatus.FORBIDDEN);
+    INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다.", HttpStatus.FORBIDDEN),
+    EXPIRED_TOKEN("만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    AUTHENTICATION_FAILED("인증에 실패했습니다.", HttpStatus.UNAUTHORIZED);
 
 
     //오류 메시지
