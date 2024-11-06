@@ -52,6 +52,15 @@ public class AuthController {
         return ResponseEntity.status(OK)
                 .body(ApiResDto.toSuccessForm(authResponse));
     }
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResDto> logout(
+            @RequestHeader("Authorization") String accessToken
+            ) {
+        String token = resolveToken(accessToken);
+        authService.logout(token);
+        return ResponseEntity.status(NO_CONTENT)
+                .body(ApiResDto.toSuccessForm(""));
+    }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResDto> refreshAccessToken(
@@ -61,5 +70,16 @@ public class AuthController {
         return ResponseEntity.status(OK)
                 .body(ApiResDto.toSuccessForm(authResponseDto));
     }
+
+    /**
+     * Authorization 헤더에서 "Bearer " 접두사를 제거하여 액세스 토큰을 추출하고 반환
+     */
+    private String resolveToken(String accessToken) {
+        if (accessToken.startsWith("Bearer ")) {
+            return accessToken.substring("Bearer ".length());
+        }
+        return null;
+    }
+
 
 }
