@@ -12,12 +12,14 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -103,6 +105,33 @@ public class JwtTokenProvider {
     // 토큰에서 사용자 ID 추출
     public String getUserIdFromToken(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    /**
+     * 토큰에서 사용자 정보 추출 후 Authentication 객체 생성
+     * @param token JWT 토큰
+     * @return Authentication 객체
+     */
+    public Authentication getAuthentication(String token) {
+        // 1. 토큰에서 사용자 정보 추출
+        Claims claims = parseClaims(token);
+        String account = claims.getSubject();
+        String roles = claims.get("roles", String.class);
+
+        // 2. 권한 정보 설정
+        Collection<GrantedAuthority> authorities = Arrays.stream(roles.split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        // 3. CustomUserDetails 객체 생성
+        CustomUserDetails customUserDetails = CustomUserDetails.builder()
+                .account(account)
+                .password("") // 비밀번호는 빈 문자열로 설정
+                .authorities(authorities)
+                .build();
+
+        // 4. Authentication 객체 반환
+        return new UsernamePasswordAuthenticationToken(customUserDetails, token, authorities);
     }
 
     // 토큰 검증
