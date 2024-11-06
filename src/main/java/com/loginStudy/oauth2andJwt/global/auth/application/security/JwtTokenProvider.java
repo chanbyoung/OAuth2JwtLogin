@@ -134,6 +134,17 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(customUserDetails, token, authorities);
     }
 
+    /**
+     * 토큰에서 만료 시간 가져오기
+     *
+     * @param token JWT 토큰
+     * @return 토큰의 남은 만료 시간 (밀리초)
+     */
+    public long getExpiration(String token) {
+        Claims claims = parseClaims(token);
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
+
     // 토큰 검증
     public boolean validateToken(String token) {
         try {

@@ -5,10 +5,12 @@ import com.loginStudy.oauth2andJwt.domain.member.dto.MemberLoginReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.dto.MemberSignUpReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.entity.Member;
 import com.loginStudy.oauth2andJwt.global.auth.application.security.JwtTokenProvider;
+import com.loginStudy.oauth2andJwt.global.auth.application.security.RedisTokenStore;
 import com.loginStudy.oauth2andJwt.global.dto.response.AuthResponseDto;
 import com.loginStudy.oauth2andJwt.global.error.BusinessException;
 import com.loginStudy.oauth2andJwt.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,11 +19,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTokenStore redisTokenStore;
     // SecurityConfig 에서 @Bean 으로 등록된 PasswordEncoder 와 AuthenticationManager 주입
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -36,6 +40,7 @@ public class AuthService {
         return createdMember.getId();
     }
     // 로그인 처리 및 AuthResponse 생성
+    @Transactional
     public AuthResponseDto login(MemberLoginReqDto memberLoginReqDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(memberLoginReqDto.getAccount(), memberLoginReqDto.getPassword())
@@ -43,6 +48,13 @@ public class AuthService {
 
         // JwtTokenProvider에서 Access, Refresh 토큰 생성 및 AuthResponse 반환
         return jwtTokenProvider.createAuthResponse(authentication);
+    }
+    @Transactional
+    public void logout(String jwtToken) {
+        long accessTokenExpiration = jwtTokenProvider.getExpiration(jwtToken);
+        String userId = jwtTokenProvider.getUserIdFromToken(jwtToken);
+
+        redisTokenStore.logoutTokens(jwtToken, accessTokenExpiration, userId);
     }
 
     /**
@@ -59,7 +71,6 @@ public class AuthService {
             throw new BusinessException(refreshToken, "refreshToken", ErrorCode.INVALID_REFRESH_TOKEN);
         }
     }
-
     /**
      * 회원 아이디 중복 확인
      *

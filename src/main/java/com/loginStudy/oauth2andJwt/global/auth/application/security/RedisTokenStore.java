@@ -60,6 +60,28 @@ public class RedisTokenStore {
             return false;
         }
     }
+
+    /**
+     * 로그아웃 시 액세스 토큰과 리프레시 토큰을 블랙리스트에 추가하는 메서드
+     */
+    public void logoutTokens(String jwtToken, long accessTokenExpiration, String userId) {
+        try {
+            // 1. 액세스 토큰 블랙리스트 등록
+            redisTemplate.opsForValue().set(
+                    jwtToken,
+                    "blacklisted",
+                    accessTokenExpiration,
+                    TimeUnit.MILLISECONDS);
+
+            // 2. 리프레시 토큰을 업데이트하여 만료 처리
+            redisTemplate.delete(userId);
+
+        } catch (Exception e) {
+            log.error("토큰 블랙리스트 등록 중 오류 발생", e);
+            throw new RuntimeException("로그아웃 중 오류가 발생했습니다.", e);
+        }
+    }
+
     /**
      * Refresh 토큰 저장을 위한 데이터 맵 생성
      */
