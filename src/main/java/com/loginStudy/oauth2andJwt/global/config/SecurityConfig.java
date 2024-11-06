@@ -1,5 +1,9 @@
 package com.loginStudy.oauth2andJwt.global.config;
 
+import com.loginStudy.oauth2andJwt.global.auth.application.security.JwtAuthenticationFilter;
+import com.loginStudy.oauth2andJwt.global.auth.application.security.JwtTokenProvider;
+import com.loginStudy.oauth2andJwt.global.auth.application.security.RedisTokenStore;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +14,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,10 +24,12 @@ import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTokenStore redisTokenStore;
 
     /**
      * 비밀번호 암호화 방식 'BCrypt'로 설정
@@ -52,7 +59,9 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(STATELESS)) // 세션 정책을 STATELESS로 설정하여 서버에서 세션을 생성하지 않음
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
+                                .requestMatchers("/api/v1/auth/refresh").permitAll()
                                 .anyRequest().permitAll())
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenStore), UsernamePasswordAuthenticationFilter.class)
                 .build();
 //                     .requestMatchers("/api/").permitAll() // "/api/homes" 엔드포인트는 인증 없이 접근 가능
 //                     .anyRequest().authenticated()) // 그 외 모든 요청은 인증이 필요
