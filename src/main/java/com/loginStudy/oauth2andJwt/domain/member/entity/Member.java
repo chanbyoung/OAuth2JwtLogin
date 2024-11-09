@@ -15,6 +15,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.UUID;
 
 
 @Entity
@@ -40,11 +43,28 @@ public class Member extends BaseEntity {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    // 소셜 로그인 제공자 정보 (예: kakao, naver 등)
+    @Column(name = "provider")
+    private String provider;
+
+
     @Builder
-    public Member(Long id, String account, String password, Role role) {
+    public Member(Long id, String account, String password, Role role, String provider) {
         this.id = id;
         this.account = account;
         this.password = password;
         this.role = role;
+        this.provider = provider;
+    }
+
+    // 소셜 계정으로 회원가입할 경우의 편의 생성자
+    public static Member socialMember(String account, Role role, String provider) {
+        String randomPassword = new BCryptPasswordEncoder().encode(UUID.randomUUID().toString());
+        return Member.builder()
+                .account(account)
+                .password(randomPassword)
+                .role(role)
+                .provider(provider)
+                .build();
     }
 }
