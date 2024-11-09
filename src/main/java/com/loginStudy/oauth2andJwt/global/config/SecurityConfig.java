@@ -1,8 +1,6 @@
 package com.loginStudy.oauth2andJwt.global.config;
 
-import com.loginStudy.oauth2andJwt.global.auth.application.security.JwtAuthenticationFilter;
-import com.loginStudy.oauth2andJwt.global.auth.application.security.JwtTokenProvider;
-import com.loginStudy.oauth2andJwt.global.auth.application.security.RedisTokenStore;
+import com.loginStudy.oauth2andJwt.global.auth.application.security.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +28,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTokenStore redisTokenStore;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomOauth2LoginSuccessHandler loginSuccessHandler;
 
     /**
      * 비밀번호 암호화 방식 'BCrypt'로 설정
@@ -61,6 +61,9 @@ public class SecurityConfig {
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/auth/refresh").permitAll()
                                 .anyRequest().permitAll())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customUserDetailsService))
+                        .successHandler(loginSuccessHandler))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenStore), UsernamePasswordAuthenticationFilter.class)
                 .build();
 //                     .requestMatchers("/api/").permitAll() // "/api/homes" 엔드포인트는 인증 없이 접근 가능
