@@ -42,14 +42,15 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
+
+        // 소셜 로그인 제공자 (ex: kakao, google ..)
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
         // provider에 맞는 이메일 추출
         String email = extractEmail(oAuth2User, provider);
 
-
         Member member = memberRepository.findByAccount(email)
-                .orElseGet(() -> memberRepository.save(Member.socialMember(email, Role.USER, provider)));
+                .orElseGet(() -> memberRepository.save(Member.socialMember(email, Role.GUEST, provider)));
 
         return createUserDetails(member, oAuth2User.getAttributes());
     }
