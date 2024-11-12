@@ -71,4 +71,13 @@ public class Member extends BaseEntity {
                 .provider(provider)
                 .build();
     }
+
+    public void updateNicknameAndRole(String nickname) {
+        this.nickname = nickname;
+        this.role = Role.USER;
+    }
+
+    public void updateProfileImage(Image image) {
+        this.profileImage = image;
+    }
 }
