@@ -3,13 +3,9 @@ package com.loginStudy.oauth2andJwt.domain.member.entity;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+import com.loginStudy.oauth2andJwt.domain.image.entity.Image;
 import com.loginStudy.oauth2andJwt.global.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -46,6 +42,14 @@ public class Member extends BaseEntity {
     // 소셜 로그인 제공자 정보 (예: kakao, naver 등)
     @Column(name = "provider")
     private String provider;
+
+    // 닉네임
+    @Column(name = "nickname")
+    private String nickname;
+
+    // 프로필 이미지
+    @OneToOne(mappedBy = "member",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image profileImage;
 
 
     @Builder
