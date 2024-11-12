@@ -3,21 +3,24 @@ package com.loginStudy.oauth2andJwt.domain.member.application;
 import com.loginStudy.oauth2andJwt.domain.image.application.ImageService;
 import com.loginStudy.oauth2andJwt.domain.image.entity.Image;
 import com.loginStudy.oauth2andJwt.domain.member.dao.MemberRepository;
+import com.loginStudy.oauth2andJwt.domain.member.dto.rep.MemberProfileRepDto;
 import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberAdditionalSetupReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.entity.Member;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final MemberRepository memberRepository;
     private final ImageService imageService;
+    private static final String FILE_PATH = "/images/";
 
     @Transactional
     public void setupProfile(String memberAccount, MemberAdditionalSetupReqDto setupDto) throws IOException {
@@ -35,5 +38,14 @@ public class MemberService {
         }
 
         memberRepository.save(member);
+    }
+    public MemberProfileRepDto getMemberProfile(String memberAccount) {
+        Member member = memberRepository.findByAccount(memberAccount)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+
+        Image profileImage = member.getProfileImage();
+        String profileImageUrl = (profileImage != null) ? FILE_PATH + profileImage.getStoreFileName() : null;
+
+        return new MemberProfileRepDto(member.getNickname(), profileImageUrl);
     }
 }

@@ -42,11 +42,6 @@ public class Image {
         this.member = member;
     }
 
-    // 파일명을 포함한 전체 경로 생성
-    public String getFullPath() {
-        return filePath + storeFileName;
-    }
-
     // 파일 정보 업데이트
     public void updateImage(String uploadFileName, String storeFileName, String filePath) {
         this.uploadFileName = uploadFileName;
