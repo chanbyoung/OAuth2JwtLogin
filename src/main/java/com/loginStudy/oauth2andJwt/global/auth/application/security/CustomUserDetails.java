@@ -3,6 +3,7 @@ package com.loginStudy.oauth2andJwt.global.auth.application.security;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -12,6 +13,8 @@ import java.util.Map;
 @Getter
 @Builder
 public class CustomUserDetails implements UserDetails, OAuth2User {
+    private static final String ROLE_GUEST = "ROLE_GUEST";
+
     private String account;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
@@ -63,5 +66,9 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;
+    }
+    public boolean isGuest() {
+        return authorities.stream()
+                .anyMatch(authority -> authority.getAuthority().equals(ROLE_GUEST));
     }
 }
