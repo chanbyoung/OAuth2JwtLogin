@@ -1,8 +1,8 @@
 package com.loginStudy.oauth2andJwt.global.auth.application;
 
 import com.loginStudy.oauth2andJwt.domain.member.dao.MemberRepository;
-import com.loginStudy.oauth2andJwt.domain.member.dto.MemberLoginReqDto;
-import com.loginStudy.oauth2andJwt.domain.member.dto.MemberSignUpReqDto;
+import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberLoginReqDto;
+import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberSignUpReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.entity.Member;
 import com.loginStudy.oauth2andJwt.global.auth.application.security.JwtTokenProvider;
 import com.loginStudy.oauth2andJwt.global.auth.application.security.RedisTokenStore;

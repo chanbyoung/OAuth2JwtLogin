@@ -1,7 +1,7 @@
 package com.loginStudy.oauth2andJwt.global.auth.api;
 
-import com.loginStudy.oauth2andJwt.domain.member.dto.MemberLoginReqDto;
-import com.loginStudy.oauth2andJwt.domain.member.dto.MemberSignUpReqDto;
+import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberLoginReqDto;
+import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberSignUpReqDto;
 import com.loginStudy.oauth2andJwt.global.auth.application.AuthService;
 import com.loginStudy.oauth2andJwt.global.dto.request.RefreshTokenRequestDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.ApiResDto;

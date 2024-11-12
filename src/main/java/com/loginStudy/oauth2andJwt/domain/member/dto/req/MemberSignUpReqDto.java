@@ -1,4 +1,4 @@
-package com.loginStudy.oauth2andJwt.domain.member.dto;
+package com.loginStudy.oauth2andJwt.domain.member.dto.req;
 
 import com.loginStudy.oauth2andJwt.domain.member.entity.Member;
 import com.loginStudy.oauth2andJwt.domain.member.entity.Role;

@@ -1,7 +1,7 @@
 package com.loginStudy.oauth2andJwt.global.auth.application;
 
 import com.loginStudy.oauth2andJwt.domain.member.dao.MemberRepository;
-import com.loginStudy.oauth2andJwt.domain.member.dto.MemberSignUpReqDto;
+import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberSignUpReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.entity.Member;
 import com.loginStudy.oauth2andJwt.global.error.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
