@@ -20,6 +20,7 @@ public class CustomOauth2LoginSuccessHandler implements AuthenticationSuccessHan
     private static final String ACCESS_TOKEN_NAME = "accessToken";
     private static final String REFRESH_TOKEN_NAME = "refreshToken";
     private static final String SIGN_UP_URL = "http://localhost:3000/signUp/setUp";
+    private static final String SIGN_UP_URL_PATTERN = "%s?account=%s"; // URL 패턴 상수
     private static final String SUCCESS_URL = "http://localhost:3000/success-page";
     private static final int TOKEN_EXPIRATION = 300;
 
@@ -35,7 +36,9 @@ public class CustomOauth2LoginSuccessHandler implements AuthenticationSuccessHan
         CustomUserDetails oAuth2User = (CustomUserDetails) authentication.getPrincipal();
         // 처음 로그인 한 회원의 경우 추가 설정으로 리다이렉트
         if (oAuth2User.isGuest()) {
-            response.sendRedirect(SIGN_UP_URL);
+            // GUEST 역할: 추가 설정 페이지로 리다이렉트
+            String redirectUrl = String.format(SIGN_UP_URL_PATTERN, SIGN_UP_URL, oAuth2User.getUsername());
+            response.sendRedirect(redirectUrl);
         } else {
             response.sendRedirect(SUCCESS_URL);
         }
