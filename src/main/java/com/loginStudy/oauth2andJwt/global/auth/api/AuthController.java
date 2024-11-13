@@ -12,8 +12,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.OK;
 
-import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -69,6 +72,23 @@ public class AuthController {
         AuthResponseDto authResponseDto = authService.refreshAccessToken(refreshTokenRequestDto.getRefreshToken());
         return ResponseEntity.status(OK)
                 .body(ApiResDto.toSuccessForm(authResponseDto));
+    }
+    /**
+     * 임시 토큰을 검증하고 최종 액세스 및 리프레시 토큰 발급
+     */
+    @GetMapping("/issue-final-token")
+    public ResponseEntity<ApiResDto> issueFinalTokens(
+            @RequestParam("tempToken") String tempToken
+    ) {
+        AuthResponseDto authResponse = authService.retrieveAuthResponse(tempToken);
+
+        if (authResponse == null) {
+            return ResponseEntity.status(BAD_REQUEST)
+                    .body(ApiResDto.toFailForm(null));
+        }
+
+        return ResponseEntity.status(OK)
+                .body(ApiResDto.toSuccessForm(authResponse));
     }
 
     /**
