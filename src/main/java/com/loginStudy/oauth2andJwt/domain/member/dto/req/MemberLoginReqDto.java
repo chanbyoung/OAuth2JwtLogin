@@ -1,4 +1,4 @@
-package com.loginStudy.oauth2andJwt.domain.member.dto;
+package com.loginStudy.oauth2andJwt.domain.member.dto.req;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

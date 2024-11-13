@@ -3,13 +3,9 @@ package com.loginStudy.oauth2andJwt.domain.member.entity;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+import com.loginStudy.oauth2andJwt.domain.image.entity.Image;
 import com.loginStudy.oauth2andJwt.global.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -47,6 +43,14 @@ public class Member extends BaseEntity {
     @Column(name = "provider")
     private String provider;
 
+    // 닉네임
+    @Column(name = "nickname")
+    private String nickname;
+
+    // 프로필 이미지
+    @OneToOne(mappedBy = "member",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image profileImage;
+
 
     @Builder
     public Member(Long id, String account, String password, Role role, String provider) {
@@ -66,5 +70,14 @@ public class Member extends BaseEntity {
                 .role(role)
                 .provider(provider)
                 .build();
+    }
+
+    public void updateNicknameAndRole(String nickname) {
+        this.nickname = nickname;
+        this.role = Role.USER;
+    }
+
+    public void updateProfileImage(Image image) {
+        this.profileImage = image;
     }
 }

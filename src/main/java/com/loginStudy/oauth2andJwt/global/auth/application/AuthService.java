@@ -1,8 +1,8 @@
 package com.loginStudy.oauth2andJwt.global.auth.application;
 
 import com.loginStudy.oauth2andJwt.domain.member.dao.MemberRepository;
-import com.loginStudy.oauth2andJwt.domain.member.dto.MemberLoginReqDto;
-import com.loginStudy.oauth2andJwt.domain.member.dto.MemberSignUpReqDto;
+import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberLoginReqDto;
+import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberSignUpReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.entity.Member;
 import com.loginStudy.oauth2andJwt.global.auth.application.security.JwtTokenProvider;
 import com.loginStudy.oauth2andJwt.global.auth.application.security.RedisTokenStore;
@@ -80,6 +80,17 @@ public class AuthService {
         if (memberRepository.findByAccount(account).isPresent()) {
             throw new BusinessException(account, "account", ErrorCode.MEMBER_ACCOUNT_DUPLICATE);
         }
+    }
+
+    /**
+     * 임시 토큰을 사용하여 Redis에서 인증 응답 데이터를 조회합니다.
+     *
+     * @param tempToken 임시 토큰 (프론트엔드에서 받은 tempToken)
+     * @return AuthResponseDto 인증에 필요한 Access, Refresh 토큰
+     *         조회된 데이터가 없을 경우 null을 반환합니다.
+     */
+    public AuthResponseDto retrieveAuthResponse(String tempToken) {
+        return redisTokenStore.retrieveAuthResponse(tempToken);
     }
 
 }

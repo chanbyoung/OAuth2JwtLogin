@@ -1,6 +1,7 @@
 package com.loginStudy.oauth2andJwt.global.auth.application.security;
 
 import com.loginStudy.oauth2andJwt.global.dto.RefreshTokenInfoDto;
+import com.loginStudy.oauth2andJwt.global.dto.response.AuthResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
@@ -10,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -18,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class RedisTokenStore {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private static final int TEMP_TOKEN_EXPIRATION = 300;
 
     /**
      * Refresh 토큰과 사용자 정보를 Redis에 저장
@@ -105,6 +108,28 @@ public class RedisTokenStore {
         } catch (Exception e) {
             log.error("사용자 권한 정보를 가져오는 중 예기치 못한 오류 발생", e);
             return null;
+        }
+    }
+    public String generateTemporaryToken(AuthResponseDto authResponse) {
+        String tempToken = UUID.randomUUID().toString();
+        try {
+            redisTemplate.opsForValue().set(tempToken, authResponse, TEMP_TOKEN_EXPIRATION, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("Redis에 임시 토큰 저장 중 오류 발생", e);
+            throw new RuntimeException("임시 토큰 생성 중 오류가 발생했습니다.", e);
+        }
+        return tempToken;
+    }
+
+    // 임시 토큰으로 AuthResponseDto를 조회
+    public AuthResponseDto retrieveAuthResponse(String tempToken) {
+        try {
+            AuthResponseDto authResponse = (AuthResponseDto) redisTemplate.opsForValue().get(tempToken);
+            redisTemplate.delete(tempToken);// 임시 토큰 만료 처리
+            return authResponse;
+        } catch (Exception e) {
+            log.error("Redis에서 AuthResponse 조회 중 오류 발생", e);
+            throw new RuntimeException("임시 토큰 검증 중 오류가 발생했습니다.", e);
         }
     }
 }

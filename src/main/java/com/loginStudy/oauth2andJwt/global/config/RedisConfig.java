@@ -18,6 +18,9 @@ public class RedisConfig {
         // 키를 문자열로 직렬화
         redisTemplate.setKeySerializer(new StringRedisSerializer());
 
+        // JSON 직렬화기 추가 설정
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+
         // 해시 키를 문자열로 직렬화
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 
