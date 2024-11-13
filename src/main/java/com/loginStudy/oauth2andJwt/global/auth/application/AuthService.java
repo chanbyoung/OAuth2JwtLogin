@@ -82,4 +82,15 @@ public class AuthService {
         }
     }
 
+    /**
+     * 임시 토큰을 사용하여 Redis에서 인증 응답 데이터를 조회합니다.
+     *
+     * @param tempToken 임시 토큰 (프론트엔드에서 받은 tempToken)
+     * @return AuthResponseDto 인증에 필요한 Access, Refresh 토큰
+     *         조회된 데이터가 없을 경우 null을 반환합니다.
+     */
+    public AuthResponseDto retrieveAuthResponse(String tempToken) {
+        return redisTokenStore.retrieveAuthResponse(tempToken);
+    }
+
 }
