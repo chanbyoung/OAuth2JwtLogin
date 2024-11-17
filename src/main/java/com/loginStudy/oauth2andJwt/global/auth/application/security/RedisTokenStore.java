@@ -21,6 +21,8 @@ public class RedisTokenStore {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private static final int TEMP_TOKEN_EXPIRATION = 300;
+    private static final int SOCIAL_REFRESH_TOKEN_EXPIRATION = 3650;
+    private static final String SOCIAL_TOKEN_REDIS_KEY = "social:refreshToken";
 
     /**
      * Refresh 토큰과 사용자 정보를 Redis에 저장
@@ -110,7 +112,7 @@ public class RedisTokenStore {
             return null;
         }
     }
-    public String generateTemporaryToken(AuthResponseDto authResponse) {
+    public String storeAuthResponseWithTempToken(AuthResponseDto authResponse) {
         String tempToken = UUID.randomUUID().toString();
         try {
             redisTemplate.opsForValue().set(tempToken, authResponse, TEMP_TOKEN_EXPIRATION, TimeUnit.SECONDS);
@@ -131,5 +133,29 @@ public class RedisTokenStore {
             log.error("Redis에서 AuthResponse 조회 중 오류 발생", e);
             throw new RuntimeException("임시 토큰 검증 중 오류가 발생했습니다.", e);
         }
+    }
+
+    /**
+     * google 계정일 경우 회원 탈퇴를 위한 리프래시 토큰을 저장하는 메소드
+     */
+    public void storeSocialRefreshTokenWithExtendedTTL(String userAccount, String refreshToken) {
+        try {
+            String redisKey = SOCIAL_TOKEN_REDIS_KEY + userAccount;
+            redisTemplate.opsForValue().set(redisKey, refreshToken, SOCIAL_REFRESH_TOKEN_EXPIRATION, TimeUnit.DAYS);
+            log.info("소셜 Refresh Token 저장 (TTL 10년): key={}, refreshToken={}", redisKey, refreshToken);
+        } catch (Exception e) {
+            log.error("Redis에 소셜 Refresh Token 저장 중 오류 발생", e);
+        }
+    }
+    /**
+     * google 계정일 경우 회원 탈퇴를 위한 리프래시 토큰을 조회하고 Redis에서 삭제하는 메소드
+     */
+    public String fetchAndDeleteSocialRefreshToken(String userAccount) {
+        String redisKey = SOCIAL_TOKEN_REDIS_KEY + userAccount;
+        String refreshToken = (String) redisTemplate.opsForValue().get(redisKey);
+        if (refreshToken != null) {
+            redisTemplate.delete(redisKey); // 조회 후 삭제
+        }
+        return refreshToken;
     }
 }

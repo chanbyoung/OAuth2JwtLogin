@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 @Transactional(readOnly = true)
@@ -26,6 +28,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTokenStore redisTokenStore;
+    private final UnlinkService unlinkService;
     // SecurityConfig 에서 @Bean 으로 등록된 PasswordEncoder 와 AuthenticationManager 주입
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -93,4 +96,18 @@ public class AuthService {
         return redisTokenStore.retrieveAuthResponse(tempToken);
     }
 
+    /**
+     * 회원 계정으로 회원을 조회하고, 삭제합니다.
+     * 삭제하면서 연결된 소셜 계정과 연결을 끊습니다.
+     * @param account 사용자 계정
+     */
+    @Transactional
+    public void deleteAccount(String account) {
+        Member member = memberRepository.findByAccount(account)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        if (!member.getProvider().isBlank()) {
+            unlinkService.unlink(member);
+        }
+        memberRepository.delete(member);
+    }
 }

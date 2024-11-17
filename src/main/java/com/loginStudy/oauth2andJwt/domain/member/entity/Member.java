@@ -43,6 +43,9 @@ public class Member extends BaseEntity {
     @Column(name = "provider")
     private String provider;
 
+    @Column(name = "provider_id")
+    private String providerId;
+
     // 닉네임
     @Column(name = "nickname")
     private String nickname;
@@ -53,22 +56,24 @@ public class Member extends BaseEntity {
 
 
     @Builder
-    public Member(Long id, String account, String password, Role role, String provider) {
+    public Member(Long id, String account, String password, Role role, String provider, String providerId) {
         this.id = id;
         this.account = account;
         this.password = password;
         this.role = role;
         this.provider = provider;
+        this.providerId = providerId;
     }
 
     // 소셜 계정으로 회원가입할 경우의 편의 생성자
-    public static Member socialMember(String account, Role role, String provider) {
+    public static Member socialMember(String account, Role role, String provider, String providerId) {
         String randomPassword = new BCryptPasswordEncoder().encode(UUID.randomUUID().toString());
         return Member.builder()
                 .account(account)
                 .password(randomPassword)
                 .role(role)
                 .provider(provider)
+                .providerId(providerId)
                 .build();
     }
 
