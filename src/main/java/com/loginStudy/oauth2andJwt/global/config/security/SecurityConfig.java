@@ -1,6 +1,9 @@
-package com.loginStudy.oauth2andJwt.global.config;
+package com.loginStudy.oauth2andJwt.global.config.security;
 
 import com.loginStudy.oauth2andJwt.global.auth.application.security.*;
+import com.loginStudy.oauth2andJwt.global.config.redis.RedisTokenStore;
+import com.loginStudy.oauth2andJwt.global.config.security.filter.JwtAuthenticationFilter;
+import com.loginStudy.oauth2andJwt.global.config.security.handler.CustomOauth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

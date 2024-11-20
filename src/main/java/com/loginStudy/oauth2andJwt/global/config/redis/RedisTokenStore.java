@@ -1,4 +1,4 @@
-package com.loginStudy.oauth2andJwt.global.auth.application.security;
+package com.loginStudy.oauth2andJwt.global.config.redis;
 
 import com.loginStudy.oauth2andJwt.global.dto.RefreshTokenInfoDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.AuthResponseDto;

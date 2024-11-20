@@ -1,4 +1,4 @@
-package com.loginStudy.oauth2andJwt.global.config;
+package com.loginStudy.oauth2andJwt.global.config.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
