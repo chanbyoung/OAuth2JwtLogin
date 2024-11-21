@@ -67,16 +67,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/auth/refresh").permitAll()
+                                .requestMatchers("/api/v1/auth/logout").authenticated()
                                 .anyRequest().permitAll())
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler))
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customUserDetailsService))
                         .successHandler(loginSuccessHandler))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenStore), UsernamePasswordAuthenticationFilter.class)
-                // 예외 핸들러 적용
-                //인증
-                .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler))
-                //인가
-                .exceptionHandling(e -> e.authenticationEntryPoint(customAuthenticationEntryPoint))
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenStore),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
 //                     .requestMatchers("/api/").permitAll() // "/api/homes" 엔드포인트는 인증 없이 접근 가능
 //                     .anyRequest().authenticated()) // 그 외 모든 요청은 인증이 필요
