@@ -18,6 +18,9 @@
     @Slf4j
     @RequiredArgsConstructor
     public class JwtAuthenticationFilter extends OncePerRequestFilter {
+        private static final String AUTHORIZATION_HEADER = "Authorization";
+        private static final String BEARER_PREFIX = "Bearer ";
+
         private final JwtTokenProvider jwtTokenProvider;
         private final RedisTokenStore redisTokenStore;
 
@@ -25,20 +28,28 @@
         protected void doFilterInternal(HttpServletRequest request,
                                         HttpServletResponse response,
                                         FilterChain filterChain) throws ServletException, IOException {
+            // 요청 헤더에서 JWT 토큰을 추출
             String token = extractToken(request);
 
             try {
+                // 토큰이 존재하면 검증을 진행
                 if (token != null) {
+                    // JWT 토큰의 유효성을 검증
                     jwtTokenProvider.validateToken(token);
+
+                    // 토큰이 블랙리스트에 포함되어 있지 않은 경우
                     if (!isTokenBlacklisted(token)) {
+                        // 토큰에서 인증 정보를 가져와 SecurityContext에 설정
                         Authentication authentication = jwtTokenProvider.getAuthentication(token);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
             } catch (ExpiredJwtException e) {
+                // 만료된 토큰 예외 발생 시 로그 기록
                 log.warn("만료된 토큰: {}", e.getMessage());
             }
 
+            // 필터 체인의 다음 필터로 요청과 응답을 전달
             filterChain.doFilter(request, response);
         }
 
@@ -48,9 +59,9 @@
          * @return 추출된 JWT 토큰 (없으면 null 반환)
          */
         private String extractToken(HttpServletRequest request) {
-            String bearerToken = request.getHeader("Authorization");
-            return (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) ?
-                    bearerToken.substring(7) : null;
+            String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+            return (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) ?
+                    bearerToken.substring(BEARER_PREFIX.length()) : null;
         }
 
         /**
