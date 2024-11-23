@@ -3,6 +3,8 @@ package com.loginStudy.oauth2andJwt.global.auth.api;
 import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberLoginReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberSignUpReqDto;
 import com.loginStudy.oauth2andJwt.global.auth.application.AuthService;
+import com.loginStudy.oauth2andJwt.global.auth.application.security.CustomUserDetails;
+import com.loginStudy.oauth2andJwt.global.config.security.annotation.LoginMember;
 import com.loginStudy.oauth2andJwt.global.dto.request.RefreshTokenRequestDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.ApiResDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.AuthResponseDto;
@@ -11,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
@@ -66,6 +69,15 @@ public class AuthController {
                 .body(ApiResDto.toSuccessForm(""));
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResDto> deleteAccount(
+            @LoginMember String memberAccount
+    ) {
+        authService.deleteAccount(memberAccount);
+        return ResponseEntity.status(NO_CONTENT)
+                .body(ApiResDto.toSuccessForm(""));
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<ApiResDto> refreshAccessToken(
             @RequestBody RefreshTokenRequestDto refreshTokenRequestDto
@@ -103,4 +115,5 @@ public class AuthController {
         }
         return null;
     }
+
 }

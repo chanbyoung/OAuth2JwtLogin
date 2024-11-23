@@ -21,6 +21,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomUserDetailsService extends DefaultOAuth2UserService implements UserDetailsService {
 
+    // 소셜 제공자 이름은 재사용될 가능성이 크므로 상수로 유지
+    private static final String KAKAO = "kakao";
+    private static final String GOOGLE = "google";
+    private static final String NAVER = "naver";
+
     private final MemberRepository memberRepository;
 
     /**
@@ -45,16 +50,20 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 소셜 로그인 제공자 (ex: kakao, google ..)
+        // 소셜 로그인 제공자 (ex: kakao, google, naver)
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
-        // provider에 맞는 이메일 추출
-        String email = extractEmail(oAuth2User, provider);
+        // 소셜 고유 ID 및 이메일 추출
+        String providerId = String.valueOf(
+                extractAttribute(oAuth2User, provider, isGoogleProvider(provider) ? "sub" : "id"));
+        String email = (String) extractAttribute(oAuth2User, provider, "email");
 
-        Member member = memberRepository.findByAccount(email)
+        // provider와 providerId를 기준으로 사용자 조회
+        Member member = memberRepository.findByProviderAndProviderId(provider, providerId)
                 .orElseGet(() -> memberRepository.save(
-                        Member.socialMember(email, Role.GUEST, provider)));
+                        Member.socialMember(email, Role.GUEST, provider, providerId)));
 
+        // UserDetails 생성 및 반환
         return createUserDetails(member, oAuth2User.getAttributes());
     }
 
@@ -69,19 +78,33 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
     }
 
     /**
-     * 각 소셜 제공자별로 이메일을 추출하는 메서드
+     * 소셜 제공자별로 필요한 속성을 추출하는 메서드
      */
-    private String extractEmail(OAuth2User oAuth2User, String provider) {
-        return switch (provider) {
-            case "kakao" -> (String) ((Map<String, Object>) oAuth2User.getAttributes()
-                    .get("kakao_account")).get("email");
-            case "naver" -> {
-                Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes()
-                        .get("response");
-                yield (String) response.get("email");
-            }
-            case "google" -> (String) oAuth2User.getAttributes().get("email");
+    private Object extractAttribute(OAuth2User oAuth2User, String provider, String attributeKey) {
+        return switch (provider.toLowerCase()) {
+            case KAKAO -> extractKakaoAttribute(oAuth2User, attributeKey);
+            case NAVER -> extractNaverAttribute(oAuth2User, attributeKey);
+            case GOOGLE -> oAuth2User.getAttributes().get(attributeKey);
             default -> throw new OAuth2AuthenticationException("지원하지 않는 소셜 로그인 제공자입니다: " + provider);
         };
+    }
+
+    private Object extractKakaoAttribute(OAuth2User oAuth2User, String attributeKey) {
+        if ("email".equals(attributeKey)) {
+            Map<String, Object> kakaoAccount = (Map<String, Object>) oAuth2User.getAttributes()
+                    .get("kakao_account");
+            return kakaoAccount.get("email");
+        }
+        return oAuth2User.getAttributes().get("id");
+    }
+
+    private Object extractNaverAttribute(OAuth2User oAuth2User, String attributeKey) {
+        Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes()
+                .get("response");
+        return response.get(attributeKey);
+    }
+
+    private boolean isGoogleProvider(String provider) {
+        return GOOGLE.equals(provider);
     }
 }
