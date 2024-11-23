@@ -36,7 +36,8 @@ public class RedisTokenStore {
             hashOperations.putAll(tokenData.getUserAccount(), tokenDataMap);
 
             // 만료 시간 설정 (1주일)
-            boolean isExpireSet = Boolean.TRUE.equals(redisTemplate.expire(tokenData.getUserAccount(), 7, TimeUnit.DAYS));
+            boolean isExpireSet = Boolean.TRUE.equals(
+                    redisTemplate.expire(tokenData.getUserAccount(), 7, TimeUnit.DAYS));
             if (!isExpireSet) {
                 log.warn("TTL 설정에 실패했습니다. userAccount: {}", tokenData.getUserAccount());
             }
@@ -48,12 +49,14 @@ public class RedisTokenStore {
             log.error("Redis에 데이터를 저장 중 예기치 못한 오류 발생", e);
         }
     }
+
     /**
      * Refresh 토큰이 유효한지 확인
      */
     public boolean isValidRefreshToken(String userAccount, String refreshToken) {
         try {
-            String storedRefreshToken = (String) redisTemplate.opsForHash().get(userAccount, "refreshToken");
+            String storedRefreshToken = (String) redisTemplate.opsForHash()
+                    .get(userAccount, "refreshToken");
             return storedRefreshToken != null && storedRefreshToken.equals(refreshToken);
         } catch (RedisConnectionFailureException e) {
             log.error("Redis 연결 실패", e);
@@ -110,10 +113,12 @@ public class RedisTokenStore {
             return null;
         }
     }
+
     public String generateTemporaryToken(AuthResponseDto authResponse) {
         String tempToken = UUID.randomUUID().toString();
         try {
-            redisTemplate.opsForValue().set(tempToken, authResponse, TEMP_TOKEN_EXPIRATION, TimeUnit.SECONDS);
+            redisTemplate.opsForValue()
+                    .set(tempToken, authResponse, TEMP_TOKEN_EXPIRATION, TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error("Redis에 임시 토큰 저장 중 오류 발생", e);
             throw new RuntimeException("임시 토큰 생성 중 오류가 발생했습니다.", e);
@@ -124,7 +129,8 @@ public class RedisTokenStore {
     // 임시 토큰으로 AuthResponseDto를 조회
     public AuthResponseDto retrieveAuthResponse(String tempToken) {
         try {
-            AuthResponseDto authResponse = (AuthResponseDto) redisTemplate.opsForValue().get(tempToken);
+            AuthResponseDto authResponse = (AuthResponseDto) redisTemplate.opsForValue()
+                    .get(tempToken);
             redisTemplate.delete(tempToken);// 임시 토큰 만료 처리
             return authResponse;
         } catch (Exception e) {

@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ApiResDto {
+
     private static final String STATUS_SUCCESS = "success";
     private static final String STATUS_FAIL = "fail";
     private static final String STATUS_ERROR = "error";

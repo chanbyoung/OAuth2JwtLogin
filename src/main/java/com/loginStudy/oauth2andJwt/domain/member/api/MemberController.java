@@ -28,8 +28,10 @@ public class MemberController {
         memberService.setupProfile(account, setupDto);
         return ResponseEntity.ok("추가 설정이 완료되었습니다.");
     }
+
     @GetMapping("/profile")
-    public ResponseEntity<MemberProfileRepDto> getMemberProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<MemberProfileRepDto> getMemberProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         String memberAccount = userDetails.getUsername();
         MemberProfileRepDto profile = memberService.getMemberProfile(memberAccount);
         return ResponseEntity.ok(profile);

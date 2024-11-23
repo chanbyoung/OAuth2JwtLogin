@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class BusinessException extends RuntimeException {
+
     //오류 발생 부분의 값. 명확하게 없으면 Null.
     private final String invalidValue;
     //오류 필드명.

@@ -13,6 +13,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class FileService {
+
     @Value("${file.dir}")
     private String UPLOAD_DIR;
 
@@ -23,7 +24,7 @@ public class FileService {
 
         // 실제 파일 저장
         String filePath = UPLOAD_DIR + storeFileName;
-        log.info("UPLOAD_DIR = {} " , UPLOAD_DIR);
+        log.info("UPLOAD_DIR = {} ", UPLOAD_DIR);
         File destinationFile = new File(filePath);
         file.transferTo(destinationFile);
 

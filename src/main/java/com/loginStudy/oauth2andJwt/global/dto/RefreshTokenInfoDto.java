@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RefreshTokenInfoDto {
+
     private String userAccount;
     private String refreshToken;
     private String authorities;

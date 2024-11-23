@@ -13,6 +13,7 @@ import java.util.Map;
 @Getter
 @Builder
 public class CustomUserDetails implements UserDetails, OAuth2User {
+
     private static final String ROLE_GUEST = "ROLE_GUEST";
 
     private String account;
@@ -67,6 +68,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     public Map<String, Object> getAttributes() {
         return attributes;
     }
+
     public boolean isGuest() {
         return authorities.stream()
                 .anyMatch(authority -> authority.getAuthority().equals(ROLE_GUEST));

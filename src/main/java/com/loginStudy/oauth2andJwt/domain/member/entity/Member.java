@@ -21,6 +21,7 @@ import java.util.UUID;
 @Getter
 @Table(name = "member")
 public class Member extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "member_id", nullable = false)
@@ -48,7 +49,7 @@ public class Member extends BaseEntity {
     private String nickname;
 
     // 프로필 이미지
-    @OneToOne(mappedBy = "member",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Image profileImage;
 
 

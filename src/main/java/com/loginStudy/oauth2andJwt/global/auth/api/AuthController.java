@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/signUp")
     public ResponseEntity<ApiResDto> signUp(
             @Valid @RequestBody MemberSignUpReqDto reqDto
-    ){
+    ) {
         reqDto.validPasswordConfirm(); // 비밀번호 확인
 
         Long memberId = authService.signup(reqDto);
@@ -55,10 +55,11 @@ public class AuthController {
         return ResponseEntity.status(OK)
                 .body(ApiResDto.toSuccessForm(authResponse));
     }
+
     @PostMapping("/logout")
     public ResponseEntity<ApiResDto> logout(
             @RequestHeader("Authorization") String accessToken
-            ) {
+    ) {
         String token = resolveToken(accessToken);
         authService.logout(token);
         return ResponseEntity.status(NO_CONTENT)
@@ -69,10 +70,12 @@ public class AuthController {
     public ResponseEntity<ApiResDto> refreshAccessToken(
             @RequestBody RefreshTokenRequestDto refreshTokenRequestDto
     ) {
-        AuthResponseDto authResponseDto = authService.refreshAccessToken(refreshTokenRequestDto.getRefreshToken());
+        AuthResponseDto authResponseDto = authService.refreshAccessToken(
+                refreshTokenRequestDto.getRefreshToken());
         return ResponseEntity.status(OK)
                 .body(ApiResDto.toSuccessForm(authResponseDto));
     }
+
     /**
      * 임시 토큰을 검증하고 최종 액세스 및 리프레시 토큰 발급
      */
@@ -100,6 +103,4 @@ public class AuthController {
         }
         return null;
     }
-
-
 }

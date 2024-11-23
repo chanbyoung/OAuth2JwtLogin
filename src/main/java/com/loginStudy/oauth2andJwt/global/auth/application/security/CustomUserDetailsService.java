@@ -25,13 +25,15 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
 
     /**
      * '인증 관련 정보' 를 제공하는 User 클래스 반환
+     *
      * @param username 회원의 아이디(account)
      * @return 조회한 회원 Entity 를 UserDetail 객체로 변환
      */
     @Override
     public CustomUserDetails loadUserByUsername(String username) {
         Member member = memberRepository.findByAccount(username)
-                .orElseThrow(() -> new BusinessException(username, "account", ErrorCode.MEMBER_ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(username, "account",
+                        ErrorCode.MEMBER_ACCOUNT_NOT_FOUND));
 
         return createUserDetails(member, null);
     }
@@ -50,7 +52,8 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
         String email = extractEmail(oAuth2User, provider);
 
         Member member = memberRepository.findByAccount(email)
-                .orElseGet(() -> memberRepository.save(Member.socialMember(email, Role.GUEST, provider)));
+                .orElseGet(() -> memberRepository.save(
+                        Member.socialMember(email, Role.GUEST, provider)));
 
         return createUserDetails(member, oAuth2User.getAttributes());
     }
@@ -59,19 +62,22 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
         return CustomUserDetails.builder()
                 .account(member.getAccount())
                 .password(member.getPassword())
-                .authorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_" + member.getRole().toString())))
+                .authorities(Collections.singleton(
+                        new SimpleGrantedAuthority("ROLE_" + member.getRole().toString())))
                 .attributes(attributes) // OAuth2일 경우 속성 설정
                 .build();
     }
+
     /**
      * 각 소셜 제공자별로 이메일을 추출하는 메서드
      */
     private String extractEmail(OAuth2User oAuth2User, String provider) {
         return switch (provider) {
-            case "kakao" ->
-                    (String) ((Map<String, Object>) oAuth2User.getAttributes().get("kakao_account")).get("email");
+            case "kakao" -> (String) ((Map<String, Object>) oAuth2User.getAttributes()
+                    .get("kakao_account")).get("email");
             case "naver" -> {
-                Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes().get("response");
+                Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes()
+                        .get("response");
                 yield (String) response.get("email");
             }
             case "google" -> (String) oAuth2User.getAttributes().get("email");

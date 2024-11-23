@@ -11,6 +11,7 @@ import java.util.Locale;
 
 @Configuration
 public class P6SpyFormatter implements MessageFormattingStrategy {
+
     @PostConstruct
     public void setLogMessageFormat() {
         P6SpyOptions.getActiveInstance().setLogMessageFormat(this.getClass().getName());
@@ -18,7 +19,7 @@ public class P6SpyFormatter implements MessageFormattingStrategy {
 
     @Override
     public String formatMessage(int connectionId, String now, long elapsed, String category,
-                                String prepared, String sql, String url) {
+            String prepared, String sql, String url) {
         sql = formatSql(category, sql);
         return String.format("[%s] | %d ms | %s", category, elapsed, formatSql(category, sql));
     }
