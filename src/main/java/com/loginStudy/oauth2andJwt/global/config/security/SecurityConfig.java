@@ -1,6 +1,11 @@
-package com.loginStudy.oauth2andJwt.global.config;
+package com.loginStudy.oauth2andJwt.global.config.security;
 
 import com.loginStudy.oauth2andJwt.global.auth.application.security.*;
+import com.loginStudy.oauth2andJwt.global.config.redis.RedisTokenStore;
+import com.loginStudy.oauth2andJwt.global.config.security.filter.JwtAuthenticationFilter;
+import com.loginStudy.oauth2andJwt.global.config.security.handler.CustomAccessDeniedHandler;
+import com.loginStudy.oauth2andJwt.global.config.security.handler.CustomAuthenticationEntryPoint;
+import com.loginStudy.oauth2andJwt.global.config.security.handler.CustomOauth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +35,8 @@ public class SecurityConfig {
     private final RedisTokenStore redisTokenStore;
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomOauth2LoginSuccessHandler loginSuccessHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     /**
      * 비밀번호 암호화 방식 'BCrypt'로 설정
@@ -60,11 +67,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/auth/refresh").permitAll()
+                                .requestMatchers("/api/v1/auth/logout").authenticated()
                                 .anyRequest().permitAll())
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler))
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customUserDetailsService))
                         .successHandler(loginSuccessHandler))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenStore), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTokenStore),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
 //                     .requestMatchers("/api/").permitAll() // "/api/homes" 엔드포인트는 인증 없이 접근 가능
 //                     .anyRequest().authenticated()) // 그 외 모든 요청은 인증이 필요

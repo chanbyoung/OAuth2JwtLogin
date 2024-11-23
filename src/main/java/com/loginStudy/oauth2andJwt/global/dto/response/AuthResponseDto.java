@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthResponseDto {
+
     private String accessToken;
     private String refreshToken;
+
     public String toJson() {
         try {
             ObjectMapper mapper = new ObjectMapper();

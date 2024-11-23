@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class MemberProfileRepDto {
+
     private String nickname;
     private String profileImageUrl;
 }

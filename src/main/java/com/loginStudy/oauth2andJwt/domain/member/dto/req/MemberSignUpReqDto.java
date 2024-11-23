@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AllArgsConstructor
 @Builder
 public class MemberSignUpReqDto {
+
     public static final int MIN_ACCOUNT_LENGTH = 6;
     public static final int MAX_ACCOUNT_LENGTH = 19;
     /**
@@ -45,11 +46,12 @@ public class MemberSignUpReqDto {
     private String passwordConfirm;
 
     public void validPasswordConfirm() {
-        if (!password.equals(passwordConfirm)){
+        if (!password.equals(passwordConfirm)) {
             throw new BusinessException(null, "passwordConfirm",
                     ErrorCode.MEMBER_WRONG_PASSWORD_CONFIRM);
         }
     }
+
     public Member toEntity(PasswordEncoder passwordEncoder) {
         return Member.builder()
                 .account(this.account)

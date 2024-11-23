@@ -1,7 +1,7 @@
 package com.loginStudy.oauth2andJwt.global.auth.application;
 
 import com.loginStudy.oauth2andJwt.domain.member.entity.Member;
-import com.loginStudy.oauth2andJwt.global.auth.application.security.RedisTokenStore;
+import com.loginStudy.oauth2andJwt.global.config.redis.RedisTokenStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

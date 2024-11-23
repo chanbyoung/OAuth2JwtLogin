@@ -30,13 +30,15 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
 
     /**
      * '인증 관련 정보' 를 제공하는 User 클래스 반환
+     *
      * @param username 회원의 아이디(account)
      * @return 조회한 회원 Entity 를 UserDetail 객체로 변환
      */
     @Override
     public CustomUserDetails loadUserByUsername(String username) {
         Member member = memberRepository.findByAccount(username)
-                .orElseThrow(() -> new BusinessException(username, "account", ErrorCode.MEMBER_ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(username, "account",
+                        ErrorCode.MEMBER_ACCOUNT_NOT_FOUND));
 
         return createUserDetails(member, null);
     }
@@ -52,12 +54,14 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
         // 소셜 고유 ID 및 이메일 추출
-        String providerId = String.valueOf(extractAttribute(oAuth2User, provider, isGoogleProvider(provider) ? "sub" : "id"));
+        String providerId = String.valueOf(
+                extractAttribute(oAuth2User, provider, isGoogleProvider(provider) ? "sub" : "id"));
         String email = (String) extractAttribute(oAuth2User, provider, "email");
 
         // provider와 providerId를 기준으로 사용자 조회
         Member member = memberRepository.findByProviderAndProviderId(provider, providerId)
-                .orElseGet(() -> memberRepository.save(Member.socialMember(email, Role.GUEST, provider, providerId)));
+                .orElseGet(() -> memberRepository.save(
+                        Member.socialMember(email, Role.GUEST, provider, providerId)));
 
         // UserDetails 생성 및 반환
         return createUserDetails(member, oAuth2User.getAttributes());
@@ -67,7 +71,8 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
         return CustomUserDetails.builder()
                 .account(member.getAccount())
                 .password(member.getPassword())
-                .authorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_" + member.getRole().toString())))
+                .authorities(Collections.singleton(
+                        new SimpleGrantedAuthority("ROLE_" + member.getRole().toString())))
                 .attributes(attributes) // OAuth2일 경우 속성 설정
                 .build();
     }
@@ -86,14 +91,16 @@ public class CustomUserDetailsService extends DefaultOAuth2UserService implement
 
     private Object extractKakaoAttribute(OAuth2User oAuth2User, String attributeKey) {
         if ("email".equals(attributeKey)) {
-            Map<String, Object> kakaoAccount = (Map<String, Object>) oAuth2User.getAttributes().get("kakao_account");
+            Map<String, Object> kakaoAccount = (Map<String, Object>) oAuth2User.getAttributes()
+                    .get("kakao_account");
             return kakaoAccount.get("email");
         }
         return oAuth2User.getAttributes().get("id");
     }
 
     private Object extractNaverAttribute(OAuth2User oAuth2User, String attributeKey) {
-        Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes().get("response");
+        Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes()
+                .get("response");
         return response.get(attributeKey);
     }
 

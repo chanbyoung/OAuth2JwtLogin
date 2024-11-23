@@ -4,6 +4,7 @@ import com.loginStudy.oauth2andJwt.domain.member.application.MemberService;
 import com.loginStudy.oauth2andJwt.domain.member.dto.rep.MemberProfileRepDto;
 import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberAdditionalSetupReqDto;
 import com.loginStudy.oauth2andJwt.global.auth.application.security.CustomUserDetails;
+import com.loginStudy.oauth2andJwt.global.config.security.annotation.LoginMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,10 @@ public class MemberController {
         memberService.setupProfile(account, setupDto);
         return ResponseEntity.ok("추가 설정이 완료되었습니다.");
     }
+
     @GetMapping("/profile")
-    public ResponseEntity<MemberProfileRepDto> getMemberProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        String memberAccount = userDetails.getUsername();
+    public ResponseEntity<MemberProfileRepDto> getMemberProfile(
+            @LoginMember String memberAccount) {
         MemberProfileRepDto profile = memberService.getMemberProfile(memberAccount);
         return ResponseEntity.ok(profile);
     }

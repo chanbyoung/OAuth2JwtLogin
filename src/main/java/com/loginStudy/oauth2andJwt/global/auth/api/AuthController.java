@@ -4,6 +4,7 @@ import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberLoginReqDto;
 import com.loginStudy.oauth2andJwt.domain.member.dto.req.MemberSignUpReqDto;
 import com.loginStudy.oauth2andJwt.global.auth.application.AuthService;
 import com.loginStudy.oauth2andJwt.global.auth.application.security.CustomUserDetails;
+import com.loginStudy.oauth2andJwt.global.config.security.annotation.LoginMember;
 import com.loginStudy.oauth2andJwt.global.dto.request.RefreshTokenRequestDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.ApiResDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.AuthResponseDto;
@@ -31,7 +32,7 @@ public class AuthController {
     @PostMapping("/signUp")
     public ResponseEntity<ApiResDto> signUp(
             @Valid @RequestBody MemberSignUpReqDto reqDto
-    ){
+    ) {
         reqDto.validPasswordConfirm(); // 비밀번호 확인
 
         Long memberId = authService.signup(reqDto);
@@ -57,21 +58,22 @@ public class AuthController {
         return ResponseEntity.status(OK)
                 .body(ApiResDto.toSuccessForm(authResponse));
     }
+
     @PostMapping("/logout")
     public ResponseEntity<ApiResDto> logout(
             @RequestHeader("Authorization") String accessToken
-            ) {
+    ) {
         String token = resolveToken(accessToken);
         authService.logout(token);
         return ResponseEntity.status(NO_CONTENT)
                 .body(ApiResDto.toSuccessForm(""));
     }
+
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResDto> deleteAccount(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
-            ){
-        log.info("계정 삭제 요청 = {}", customUserDetails.getAccount());
-        authService.deleteAccount(customUserDetails.getAccount());
+            @LoginMember String memberAccount
+    ) {
+        authService.deleteAccount(memberAccount);
         return ResponseEntity.status(NO_CONTENT)
                 .body(ApiResDto.toSuccessForm(""));
     }
@@ -80,10 +82,12 @@ public class AuthController {
     public ResponseEntity<ApiResDto> refreshAccessToken(
             @RequestBody RefreshTokenRequestDto refreshTokenRequestDto
     ) {
-        AuthResponseDto authResponseDto = authService.refreshAccessToken(refreshTokenRequestDto.getRefreshToken());
+        AuthResponseDto authResponseDto = authService.refreshAccessToken(
+                refreshTokenRequestDto.getRefreshToken());
         return ResponseEntity.status(OK)
                 .body(ApiResDto.toSuccessForm(authResponseDto));
     }
+
     /**
      * 임시 토큰을 검증하고 최종 액세스 및 리프레시 토큰 발급
      */
@@ -111,6 +115,5 @@ public class AuthController {
         }
         return null;
     }
-
 
 }

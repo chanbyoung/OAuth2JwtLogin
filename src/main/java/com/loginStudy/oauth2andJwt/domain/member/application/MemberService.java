@@ -23,7 +23,8 @@ public class MemberService {
     private static final String FILE_PATH = "/images/";
 
     @Transactional
-    public void setupProfile(String memberAccount, MemberAdditionalSetupReqDto setupDto) throws IOException {
+    public void setupProfile(String memberAccount, MemberAdditionalSetupReqDto setupDto)
+            throws IOException {
         Member member = memberRepository.findByAccount(memberAccount)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
@@ -39,12 +40,14 @@ public class MemberService {
 
         memberRepository.save(member);
     }
+
     public MemberProfileRepDto getMemberProfile(String memberAccount) {
         Member member = memberRepository.findByAccount(memberAccount)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
         Image profileImage = member.getProfileImage();
-        String profileImageUrl = (profileImage != null) ? FILE_PATH + profileImage.getStoreFileName() : null;
+        String profileImageUrl =
+                (profileImage != null) ? FILE_PATH + profileImage.getStoreFileName() : null;
 
         return new MemberProfileRepDto(member.getNickname(), profileImageUrl);
     }

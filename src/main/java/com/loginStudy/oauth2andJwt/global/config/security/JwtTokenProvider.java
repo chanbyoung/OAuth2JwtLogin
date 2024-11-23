@@ -1,15 +1,15 @@
-package com.loginStudy.oauth2andJwt.global.auth.application.security;
+package com.loginStudy.oauth2andJwt.global.config.security;
 
+import com.loginStudy.oauth2andJwt.global.auth.application.security.CustomUserDetails;
+import com.loginStudy.oauth2andJwt.global.config.redis.RedisTokenStore;
 import com.loginStudy.oauth2andJwt.global.dto.RefreshTokenInfoDto;
 import com.loginStudy.oauth2andJwt.global.dto.response.AuthResponseDto;
 import com.loginStudy.oauth2andJwt.global.error.BusinessException;
 import com.loginStudy.oauth2andJwt.global.error.ErrorCode;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class JwtTokenProvider {
     private final Key key;
     private final RedisTokenStore redisTokenStore;
@@ -79,9 +80,7 @@ public class JwtTokenProvider {
      */
     public AuthResponseDto refreshAccessToken(String refreshToken) {
         // 1. 토큰 유효성 검사
-        if (!validateToken(refreshToken)) {
-            throw new BusinessException(refreshToken, "refreshToken", ErrorCode.INVALID_REFRESH_TOKEN);
-        }
+        validateToken(refreshToken);
 
         // 2. 토큰에서 사용자 ID 추출
         String userId = getUserIdFromToken(refreshToken);
@@ -145,13 +144,24 @@ public class JwtTokenProvider {
         return claims.getExpiration().getTime() - System.currentTimeMillis();
     }
 
-    // 토큰 검증
-    public boolean validateToken(String token) {
+    /**
+     * 토큰 검증
+     *
+     * @param token 검증할 토큰
+     * @return 올바르면 true, 올바르지 않으면 false
+     */
+    public void validateToken(String token) {
         try {
-            parseClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.debug("잘못된 JWT 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.debug("만료된 JWT 토큰입니다.");
+            throw e; // 만료된 토큰은 그대로 던짐
+        } catch (UnsupportedJwtException e) {
+            log.debug("지원되지 않는 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.debug("JWT 토큰이 잘못되었습니다.");
         }
     }
 
